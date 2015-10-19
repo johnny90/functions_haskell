@@ -45,4 +45,9 @@ binary d
    | d<2 = d
    | otherwise = ( binary (div d 2) ) * 10 + d `mod` 2
 
-
+chop :: Int -> (Int, Int)
+chop n
+ = if (n<10) then (0,n)
+   else (1+q,r)
+      where
+         (q,r) = chop (n-10)
