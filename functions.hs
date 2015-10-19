@@ -51,3 +51,12 @@ chop n
    else (1+q,r)
       where
          (q,r) = chop (n-10)
+
+precedes :: String -> String -> Bool
+precedes [] []         = True
+precedes x []          = False
+precedes [] x          = True
+precedes (x:xs) (y:ys) = if (x==y) then precedes xs ys else x<y
+
+pos :: Int -> [Int] -> Int
+pos nr (x:xs) = if(nr==x) then 0 else (1+pos nr xs)
