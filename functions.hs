@@ -1,3 +1,6 @@
+import Data.List
+
+
 addDigit :: Int -> Int -> Int
 addDigit number c
  = number*10 + c
@@ -45,4 +48,148 @@ binary d
    | d<2 = d
    | otherwise = ( binary (div d 2) ) * 10 + d `mod` 2
 
+chop :: Int -> (Int, Int)
+chop n
+ = if (n<10) then (0,n)
+   else (1+q,r)
+      where
+         (q,r) = chop (n-10)
 
+precedes :: String -> String -> Bool
+precedes [] []         = True
+precedes x []          = False
+precedes [] x          = True
+precedes (x:xs) (y:ys) = if (x==y) then precedes xs ys else x<y
+
+pos :: Int -> [Int] -> Int
+pos nr (x:xs) = if(nr==x) then 0 else (1+pos nr xs)
+
+myLength :: [a] -> Int
+myLength []     = 0
+myLength (x:xs) = 1 + myLength xs
+
+append :: [a] -> [a] -> [a]
+append [] x     = x
+append (x:xs) y = x : append xs y
+
+merge :: [Int] -> [Int] -> [Int]
+merge [] [] = []
+merge [] x  = x
+merge x []  = x
+merge (x:xs) (y:ys)
+  | x < y     = x:y:merge xs ys
+  | otherwise = y:x:merge xs ys
+
+mergeSort :: [Int] -> [Int]
+mergeSort [] = []
+mergeSort [x]= [x]
+mergeSort xs = merge (mergeSort xs') (mergeSort xs'')
+  where
+    xs'  = take nr xs
+    xs'' = drop nr xs
+    nr   = length xs `div` 2
+
+twoSame :: [Int] -> Bool
+twoSame [x] = False
+twoSame (x:xs:xss)
+  | x == xs   = True
+  | otherwise = twoSame (xs:xss)
+
+primeFactors :: Int -> [ Int ]
+-- Pre: x >= 1
+primeFactors number = primeFactors' number 2
+  where
+    primeFactors' :: Int -> Int -> [Int]
+    primeFactors' x y
+      | x==1                                  = []
+      | x `mod` y == 0                        = y : primeFactors' (x `div` y) y
+      | otherwise                             = primeFactors' x (y + (y `mod` 2) + 1) -- just to test odd numbers after 2
+
+hcf :: Int -> Int -> Int
+hcf a b
+  | a < 1 || b < 1 = error "Numbers less than 1"
+  | otherwise      = a `div` c
+  where
+    ps = primeFactors a
+    ps'= primeFactors b
+    c  = product (ps \\ ps')
+
+lcom :: Int -> Int -> Int
+lcom a b
+  | a < 1 || b < 1 = error "Numbers less than 1"
+  | otherwise      = b * c
+  where
+    ps = primeFactors a
+    ps'= primeFactors b
+    c  = product (ps \\ ps')
+
+right :: a -> [a] -> [a]
+right x []     = [x]
+right x (y:ys) = y : right x ys
+
+backwards :: [a] -> [a]
+backwards []     = []
+backwards (x:xs) = right x (backwards xs)
+
+backwards' :: [a] -> [a] -> [a]
+backwards' [] acc     = acc
+backwards' (x:xs) acc = backwards' xs (x:acc)
+
+merge2 :: [Int] -> [Int] -> [Int]
+merge2 [] [] = []
+merge2 [] x  = x
+merge2 x  [] = x
+merge2 (x:xs) (y:ys)
+  | x < y     = x : y : merge2 xs ys
+  | otherwise = y : x : merge2 xs ys
+
+makeTuples :: String -> String -> [(Char,Char)]
+makeTuples [] [] = []
+makeTuples (x:xs) (y:ys) = (x,y) : makeTuples xs ys
+
+anagram :: String -> String -> String -> String
+anagram _ _ [] = []
+anagram x old (new:news)
+  = (findReplace def new) : (anagram x old news)
+  where
+    def = makeTuples x old
+
+findReplace :: [(Char,Char)] -> Char -> Char
+findReplace [] c = ' '
+findReplace (x:xs) c
+  | c == snd x = fst x
+  | otherwise  = findReplace xs c
+
+substring :: String -> String -> Bool
+substring s p = substring' s list  
+  where
+    list = genSuffix p
+
+substring' :: String -> [String] -> Bool
+substring' [] _ = True
+substring' x [] = False
+substring' x (y:ys)
+  | x == take nr y = True
+  | otherwise      = substring' x ys
+  where
+    nr = length x
+
+genSuffix :: String -> [String]
+genSuffix [] = []
+genSuffix (x:xs) = xs : genSuffix xs
+
+findAll x db = [y | (x,y) <- db]
+
+timesTable :: Int -> Int -> [String]
+timesTable a b = [show x ++ " times " ++ show y ++ " is " ++ show (x*y) | x <- [1..a], y <- [1..b]]
+
+quicksort :: [Int] -> [Int]
+quicksort [] = []
+quicksort list
+  = quicksort m ++ [f] ++ quicksort n
+  where
+    f = head list
+    m = [x | x<-(tail list), x <= f]
+    n = [y | y<-(tail list), y > f]
+
+perms :: [a] -> [[a]]
