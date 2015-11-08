@@ -193,3 +193,12 @@ quicksort list
     n = [y | y<-(tail list), y > f]
 
 perms :: [a] -> [[a]]
+perms list = perms' list n []
+  where
+    n = length list
+    perms' :: [a] -> Int -> [a] -> [[a]]
+    perms' [] n acc = []
+    perms' l 0 acc = []
+    perms' l n acc
+      | (acc \\ l) == [] = [acc]
+      | otherwise        = perms' l (n-1) [r : acc| r<-l]
