@@ -192,13 +192,13 @@ quicksort list
     m = [x | x<-(tail list), x <= f]
     n = [y | y<-(tail list), y > f]
 
-perms :: [a] -> [[a]]
-perms list = perms' list n []
+perms :: (Eq a) => [a] -> [[a]]
+perms list = perms' list n [[r]|r<-list]
   where
     n = length list
-    perms' :: [a] -> Int -> [a] -> [[a]]
-    perms' [] n acc = []
-    perms' l 0 acc = []
-    perms' l n acc
-      | (acc \\ l) == [] = [acc]
-      | otherwise        = perms' l (n-1) [r : acc| r<-l]
+    perms' :: (Eq a) => [a] -> Int -> [[a]] -> [[a]]
+    perms' [] _ _ = []
+    perms' l 1 acc = acc
+    perms' l n acc = perms' l (n-1) accum
+      where
+	accum = [r:xs| r<-l, xs<-acc, (r:xs) \\ l == []]
