@@ -101,9 +101,9 @@ primeFactors number = primeFactors' number 2
   where
     primeFactors' :: Int -> Int -> [Int]
     primeFactors' x y
-      | x==1                                  = []
-      | x `mod` y == 0                        = y : primeFactors' (x `div` y) y
-      | otherwise                             = primeFactors' x (y + (y `mod` 2) + 1) -- just to test odd numbers after 2
+      | x==1           = []
+      | x `mod` y == 0 = y : primeFactors' (x `div` y) y
+      | otherwise      = primeFactors' x (y + (y `mod` 2) + 1) -- just to test odd numbers after 2
 
 hcf :: Int -> Int -> Int
 hcf a b
@@ -139,9 +139,9 @@ merge2 :: [Int] -> [Int] -> [Int]
 merge2 [] [] = []
 merge2 [] x  = x
 merge2 x  [] = x
-merge2 (x:xs) (y:ys)
-  | x < y     = x : y : merge2 xs ys
-  | otherwise = y : x : merge2 xs ys
+merge2 l1@(x:xs) l2@(y:ys)
+  | x < y     = x : merge2 xs l2
+  | otherwise = y : merge2 l1 ys
 
 makeTuples :: String -> String -> [(Char,Char)]
 makeTuples [] [] = []
@@ -202,3 +202,50 @@ perms list = perms' list n [[r]|r<-list]
     perms' l n acc = perms' l (n-1) accum
       where
 	accum = [r:xs| r<-l, xs<-acc, (r:xs) \\ l == []]
+
+subpops :: [Int] -> Int -> [[Int]]
+subpops ps k
+  = subpops' ps k (length ps) [[]]
+  where
+    subpops' :: [Int] -> Int -> Int -> [[Int]] -> [[Int]]
+    subpops' _ _ 0 acc = (filter (\x-> sum x == k) acc)
+    subpops' ps k n acc
+      = subpops' ps k (n-1) acc'
+      where
+        acc' = [ (x:xs) | x <- [0,1..(head(drop (n-1) ps))], xs <- acc ]
+
+mergeN :: [[Int]] -> [Int]
+mergeN
+  = foldr merge2 []
+
+mergeN' :: [[Int]] -> [Int]
+mergeN' []
+  = []
+mergeN' lists
+  = minh : mergeN' (filter f (map (\\[minh]) lists))
+  where
+    minh = minimum (map head lists)
+    f :: [a] -> Bool
+    f x = (length x)/=0
+
+same :: [Int] -> Bool
+same xs
+  = and (zipWith (\x y-> x==y) xs (tail xs))
+
+squash :: (a -> a -> b) -> [a] -> [b]
+squash f xs
+  = zipWith f xs (tail xs)
+
+squash' :: (a -> a -> b) -> [a] -> [b]
+squash' f [x]
+  = []
+squash' f (x:(z@(xs:xss)))
+  = (f x xs) : squash' f z
+
+converge :: (a -> a -> Bool) -> [a] -> a
+converge f xs
+  | newList == [] = last xs
+  | otherwise     = head (drop (length xs - length newList) xs)
+  where
+    newList = dropWhile (\x -> x==False) (squash f xs)
+
