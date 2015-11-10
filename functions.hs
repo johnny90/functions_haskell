@@ -244,8 +244,60 @@ squash' f (x:(z@(xs:xss)))
 
 converge :: (a -> a -> Bool) -> [a] -> a
 converge f xs
-  | newList == [] = last xs
+  | newList == [] = head xs
   | otherwise     = head (drop (length xs - length newList) xs)
   where
     newList = dropWhile (\x -> x==False) (squash f xs)
+
+any', all' :: (a -> Bool) -> [a] -> Bool
+any' = (or.).(map)
+all' = (and.).(map)
+
+data Shape = Triangle Float Float Float
+           | Square Float
+           | Circle Float
+           | Polygon [(Float,Float)]
+
+area :: Shape -> Float
+area (Triangle a b c)
+  = sqrt(s*(s-a)*(s-b)*(s-c))
+  where
+    s = (a+b+c) / 2
+area (Square x)
+  = x*x
+area (Circle r)
+  = pi * r * r
+area (Polygon vertices)
+  | vertices == [] = 0
+  | otherwise      = area (Triangle l1 l2 l3) + area (Polygon rest)
+  where
+    ((x1,y1):(x2,y2):(x3,y3):rest) = vertices
+    l1 = sqrt((x1-x2)^2+(y1-y2)^2)
+    l2 = sqrt((x1-x3)^2+(y1-y3)^2)
+    l3 = sqrt((x2-x3)^2+(y2-y3)^2)
+
+data Date = Day Int Int Int
+
+age :: Date -> Date -> Int
+age (Day d m y) (Day cd cm cy)
+  = ((cd + cm*30 + cy*365)-(d + m*30 + y*365)) `div` 365
+
+type Database = [UStaff]
+data Sex = Male
+         | Female
+
+type Empdata = (String, Sex, String, Int)
+
+data SupportType = Admin
+          | Tech
+data Subject = Systems
+             | Software
+             | Theory
+type Courses = [Int]
+data UStaff = Teaching Empdata Subject Courses
+              | Support Empdata SupportType
+
+name :: UStaff -> String
+name (Teaching (n,_,_,_) _ _) = n
+name (Support (n,_,_,_) _ ) = n
 
